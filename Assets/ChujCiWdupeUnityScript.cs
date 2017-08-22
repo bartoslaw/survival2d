@@ -10,33 +10,38 @@ public class ChujCiWdupeUnityScript : MonoBehaviour {
 	private Animator animator;
 	private float speed = 2.3f;
 	private float moveEpsilon = 0.1f;
+	private Rigidbody2D rigidBody;
+	private Vector3 lastVelocity;
 
 	// Use this for initialization
 	void Start () {
 		animator = GetComponent<Animator> (); 	
+		rigidBody = GetComponent<Rigidbody2D> ();
 	}
 
 	// Update is called once per frame
 	void Update () {
-		float horizontal = Input.GetAxis("Horizontal");
-
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			animator.SetBool (IS_SHOOTING, true);
 			Invoke("stopShooting", 0.5f);
 			return;
 		}
 
-		transform.position += new Vector3(horizontal * speed * Time.deltaTime, 0.0f, 0.0f);
-
-		if (horizontal - moveEpsilon > 0.0f) {
-			animator.SetBool (IS_WALKING, true);
-			GetComponent<SpriteRenderer> ().flipX = true;
-		} else if (horizontal + moveEpsilon < 0.0f) {
+		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			animator.SetBool (IS_WALKING, true);
 			GetComponent<SpriteRenderer> ().flipX = false;
-		} else {
+			lastVelocity = new Vector3 (-speed, 0.0f, 0.0f);
+		} else if (Input.GetKeyDown (KeyCode.RightArrow)) {
+			animator.SetBool (IS_WALKING, true);
+			GetComponent<SpriteRenderer> ().flipX = true;
+			lastVelocity = new Vector3 (speed, 0.0f, 0.0f);
+		} else if(Input.GetKeyUp(KeyCode.LeftArrow) || Input.GetKeyUp(KeyCode.RightArrow)) {
 			animator.SetBool (IS_WALKING, false);
+			lastVelocity = new Vector3 (0.0f, 0.0f, 0.0f);
 		}
+
+		print (lastVelocity);
+		rigidBody.velocity = lastVelocity;
 	}
 
 	private void stopShooting() {
