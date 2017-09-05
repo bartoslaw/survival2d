@@ -24,7 +24,7 @@ public class PlayerControllerScript : MonoBehaviour {
 		rigidBody = GetComponent<Rigidbody2D> ();
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 	}
-		
+
 	void Update () {
 		if (Input.GetKeyDown (KeyCode.Space) && !animator.GetBool(IS_SHOOTING) && !animator.GetBool(IS_WALKING)) {
 			animator.SetBool (IS_SHOOTING, true);
@@ -33,11 +33,11 @@ public class PlayerControllerScript : MonoBehaviour {
 				bulletPrefab,
 				bulletSpawn
 			)
-			.GetComponent<BulletScript> ()
-			.Shoot (!spriteRenderer.flipX ? Direction.LEFT : Direction.RIGHT);
+				.GetComponent<BulletScript> ()
+				.Shoot (!spriteRenderer.flipX ? BulletScript.Direction.LEFT : BulletScript.Direction.RIGHT);
 			return;
 		}
-			
+
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			Walk (KeyCode.LeftArrow);
 		} else if (Input.GetKeyDown (KeyCode.RightArrow)) {
@@ -56,7 +56,7 @@ public class PlayerControllerScript : MonoBehaviour {
 		animator.SetBool (IS_WALKING, true);
 		spriteRenderer.flipX = keyCode != KeyCode.LeftArrow;
 		lastVelocity = new Vector3 (keyCode == KeyCode.LeftArrow ? -speed : speed, 0.0f, 0.0f);
-	
+
 		if (keyCode == KeyCode.LeftArrow) {
 			bulletSpawn.localPosition = new Vector3 (-bulletSpawnXPosition, bulletSpawnYPosition, 0.0f);
 		} else {
