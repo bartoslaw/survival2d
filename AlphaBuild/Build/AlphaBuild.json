@@ -1,0 +1,9 @@
+{
+"TOTAL_MEMORY": 268435456,
+"dataUrl": "AlphaBuild.data.unityweb",
+"asmCodeUrl": "AlphaBuild.asm.code.unityweb",
+"asmMemoryUrl": "AlphaBuild.asm.memory.unityweb",
+"asmFrameworkUrl": "AlphaBuild.asm.framework.unityweb",
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20"
+}

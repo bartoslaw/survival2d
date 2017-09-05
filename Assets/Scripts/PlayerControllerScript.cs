@@ -34,7 +34,7 @@ public class PlayerControllerScript : MonoBehaviour {
 				bulletSpawn
 			)
 			.GetComponent<BulletScript> ()
-			.Shoot (!spriteRenderer.flipX ? BulletScript.Direction.LEFT : BulletScript.Direction.RIGHT);
+			.Shoot (!spriteRenderer.flipX ? Direction.LEFT : Direction.RIGHT);
 			return;
 		}
 			
