@@ -6,6 +6,9 @@ public class PlayerControllerScript : MonoBehaviour {
 	private const string IS_WALKING = "isWalking";
 	private const string IS_SHOOTING = "isShooting";
 
+	private const float bulletSpawnXPosition = 0.32f;
+	private const float bulletSpawnYPosition = 0.09f;
+
 	private Animator animator;
 	private Rigidbody2D rigidBody;
 	private SpriteRenderer spriteRenderer;
@@ -23,7 +26,7 @@ public class PlayerControllerScript : MonoBehaviour {
 	}
 		
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.Space)) {
+		if (Input.GetKeyDown (KeyCode.Space) && !animator.GetBool(IS_SHOOTING) && !animator.GetBool(IS_WALKING)) {
 			animator.SetBool (IS_SHOOTING, true);
 			Invoke("stopShooting", 0.5f);
 			Instantiate (
@@ -32,7 +35,6 @@ public class PlayerControllerScript : MonoBehaviour {
 			)
 			.GetComponent<BulletScript> ()
 			.Shoot (!spriteRenderer.flipX ? BulletScript.Direction.LEFT : BulletScript.Direction.RIGHT);
-
 			return;
 		}
 			
@@ -56,9 +58,9 @@ public class PlayerControllerScript : MonoBehaviour {
 		lastVelocity = new Vector3 (keyCode == KeyCode.LeftArrow ? -speed : speed, 0.0f, 0.0f);
 	
 		if (keyCode == KeyCode.LeftArrow) {
-			bulletSpawn.position = new Vector3 (-0.3f, 0.9f, 0.0f);
+			bulletSpawn.localPosition = new Vector3 (-bulletSpawnXPosition, bulletSpawnYPosition, 0.0f);
 		} else {
-			bulletSpawn.position = new Vector3 (0.3f, 0.9f, 0.0f);
+			bulletSpawn.localPosition = new Vector3 (bulletSpawnXPosition, bulletSpawnYPosition, 0.0f);
 		}
 	}
 
