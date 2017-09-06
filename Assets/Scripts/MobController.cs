@@ -38,7 +38,6 @@ public class MobController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float distanceBetweenPlayerAndMob = Math.Abs (transform.position.x - player.transform.position.x);
-		print (distanceBetweenPlayerAndMob);
 
 		if (animator.GetBool (IS_ATTACKING)) {
 			Attack ();
@@ -46,7 +45,6 @@ public class MobController : MonoBehaviour {
 		}
 			
 		if (distanceBetweenPlayerAndMob < 0.5f && wasPlayerSeen) {
-			print ("For some reason not here");
 			animator.SetBool (IS_WALKING, false);
 			animator.SetBool (IS_ATTACKING, true);
 			return;
@@ -136,7 +134,6 @@ public class MobController : MonoBehaviour {
 	}
 
 	public void PlayerSeen() {
-		print ("Message received");
 		wasPlayerSeen = true;
 	}
 }
