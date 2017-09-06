@@ -36,7 +36,6 @@ public class PlayerControllerScript : MonoBehaviour {
 	}
 
 	void Update () {
-		print (currentState);
 		if (currentState == State.SHOOTING) {
 			return;
 		}
