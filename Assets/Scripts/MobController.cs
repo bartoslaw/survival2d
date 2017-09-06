@@ -7,9 +7,12 @@ public class MobController : MonoBehaviour {
 
 	private enum State {
 		IDLE,
+		IDLE_AFTER_ATTACK,
 		RANDOM_WALKING,
 		WALK_TOWARDS_PLAYER,
-		ATTACK
+		ATTACK,
+		HURT,
+		DEAD
 	}
 
 	private const string IS_WALKING = "isWalking";
@@ -18,9 +21,13 @@ public class MobController : MonoBehaviour {
 	private const float idleTime = 1.0f;
 	private const float walkingTime = 0.5f;
 	private const float attackTime = 0.5f;
+	private const float coolOfTime = 0.4f;
+	private const float hurtTime = 0.2f;
+
+	public GameObject player;
+	public int lifeCount = 3;
 
 	private State currentState = State.IDLE;
-	public GameObject player;
 
 	private Animator animator;
 	private Rigidbody2D rigidBody;
@@ -52,7 +59,6 @@ public class MobController : MonoBehaviour {
 	}
 
 	void EvaluateState() {
-		print (currentState);
 		if (currentState == State.IDLE) {
 			StayIdle ();
 		} else if (currentState == State.RANDOM_WALKING) {
@@ -61,6 +67,9 @@ public class MobController : MonoBehaviour {
 			WalkToPlayer ();
 		} else if (currentState == State.ATTACK) {
 			Attack ();
+		} else if (currentState == State.IDLE_AFTER_ATTACK) {
+			StayIdleAfterAttack ();	
+		} else if (currentState == State.HURT) {
 		}
 	}
 
@@ -71,6 +80,15 @@ public class MobController : MonoBehaviour {
 
 		if (!IsInvoking()) {
 			Invoke ("ToggleAttackingState", attackTime);
+		}
+	}
+
+	void StayIdleAfterAttack() {
+		animator.SetBool (IS_WALKING, false);
+		lastVelocity = Vector3.zero;
+
+		if (!IsInvoking ()) {
+			Invoke ("ToggleAttackingState", coolOfTime);
 		}
 	}
 		
@@ -92,7 +110,7 @@ public class MobController : MonoBehaviour {
 			Invoke ("ToggleIdleState", idleTime);
 		}
 	}
-
+		
 	void WalkToPlayer() {
 		animator.SetBool (IS_ATTACKING, false);
 		animator.SetBool (IS_WALKING, true);
@@ -112,9 +130,18 @@ public class MobController : MonoBehaviour {
 		}
 	}
 
+	void Suffer() {
+		animator.SetBool (IS_ATTACKING, false);
+		animator.SetBool (IS_WALKING, false);
+	}
+
 	void ToggleAttackingState() {
-		animator.SetBool(IS_ATTACKING, false);
-		currentState = State.WALK_TOWARDS_PLAYER;
+		if (currentState == State.ATTACK) {
+			animator.SetBool (IS_ATTACKING, false);
+			currentState = State.IDLE_AFTER_ATTACK;
+		} else {
+			currentState = State.ATTACK;
+		}
 	}
 
 	void ToggleIdleState() {
@@ -128,8 +155,25 @@ public class MobController : MonoBehaviour {
  	}
 
 	public void PlayerSeen() {
-		print ("PlayerSeen");
 		CancelInvoke ();
 		currentState = State.WALK_TOWARDS_PLAYER;
+	}
+
+	void OnCollisionEnter2D(Collision2D collision) {
+		if (collision.gameObject.tag == Tags.BULLET_TAG) {
+			Destroy (collision.gameObject);
+
+			if (currentState != State.HURT) {
+				currentState = State.HURT;
+
+				lifeCount--;
+				if (lifeCount == 0) {
+					Destroy (gameObject);
+					return;
+				}
+					
+				Invoke ("ToggleIdleState", hurtTime);
+			}
+		}
 	}
 }
