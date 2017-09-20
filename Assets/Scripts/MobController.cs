@@ -38,6 +38,8 @@ public class MobController : MonoBehaviour {
 
 	private Direction directionToPlayer;
 	private Direction currentDirection;
+	private float distanceBetweenPlayerAndMob;
+	private IEnumerator coroutine;
 
 	void Start () {
 		animator = GetComponent<Animator> (); 	
@@ -46,7 +48,7 @@ public class MobController : MonoBehaviour {
 	}
 		
 	void Update () {
-		float distanceBetweenPlayerAndMob = Math.Abs (transform.position.x - player.transform.position.x);
+		distanceBetweenPlayerAndMob = Math.Abs (transform.position.x - player.transform.position.x);
 
 		if (distanceBetweenPlayerAndMob < 0.5f && currentState == State.WALK_TOWARDS_PLAYER) {
 			currentState = State.ATTACK;
@@ -66,7 +68,7 @@ public class MobController : MonoBehaviour {
 		} else if (currentState == State.WALK_TOWARDS_PLAYER) {
 			WalkToPlayer ();
 		} else if (currentState == State.ATTACK) {
-			Attack ();
+			Attack (distanceBetweenPlayerAndMob < 0.5);
 		} else if (currentState == State.IDLE_AFTER_ATTACK) {
 			StayIdleAfterAttack ();	
 		} else if (currentState == State.HURT) {
@@ -74,12 +76,16 @@ public class MobController : MonoBehaviour {
 		}
 	}
 
-	void Attack() {
+	void Attack(bool didHit) {
 		animator.SetBool (IS_WALKING, false);
 		animator.SetBool (IS_ATTACKING, true);
 		lastVelocity = Vector3.zero;
 
 		if (!IsInvoking()) {
+			if (didHit) {
+				player.GetComponent<PlayerControllerScript> ().TakeHit ();
+			}
+
 			Invoke ("ToggleAttackingState", attackTime);
 		}
 	}
@@ -130,25 +136,13 @@ public class MobController : MonoBehaviour {
 			spriteRenderer.flipX = true;
 		}
 	}
-		
-	IEnumerator coroutine;
-
-	private IEnumerator WaitAndChange(float waitTime)
-	{
-		while (true)
-		{
-			yield return new WaitForSeconds(waitTime);
-			spriteRenderer.enabled = !spriteRenderer.enabled;
-		}
-	}
 
 	void Suffer() {
 		animator.SetBool (IS_ATTACKING, false);
 		animator.SetBool (IS_WALKING, false);
 
 		if (coroutine == null) {
-			print ("Starting coroutine");
-			coroutine = WaitAndChange (0.1f);
+			coroutine = Coroutines.WaitAndChange (spriteRenderer);
 			StartCoroutine (coroutine);
 		}
 
@@ -170,7 +164,6 @@ public class MobController : MonoBehaviour {
 		}
 
 		if (coroutine != null) { 
-			print ("Stopping coroutine");
 			StopCoroutine (coroutine);
 			coroutine = null;
 		}

@@ -10,7 +10,6 @@ public class PlayerControllerScript : MonoBehaviour {
 		WALKING_RIGHT,
 		IDLE,
 		SHOOTING,
-		HURT,
 		DEAD
 	}
 
@@ -26,7 +25,9 @@ public class PlayerControllerScript : MonoBehaviour {
 	private State currentState = State.IDLE;
 
 	private float speed = 2.3f;
+	private float hurtTime = 0.5f;
 	private Vector3 lastVelocity;
+	private IEnumerator coroutine;
 
 	public GameObject bulletPrefab;
 	public Transform bulletSpawn;
@@ -56,6 +57,14 @@ public class PlayerControllerScript : MonoBehaviour {
 		rigidBody.velocity = lastVelocity;
 	}
 
+	public void TakeHit() {
+		if (coroutine == null) {
+			coroutine = Coroutines.WaitAndChange (spriteRenderer);
+			StartCoroutine (coroutine);
+			Invoke ("StopSuffering", hurtTime);
+		}
+	}
+		
 	private void EvaluateState() {
 		if (currentState == State.WALKING_LEFT) {
 			Walk (KeyCode.LeftArrow);
@@ -63,11 +72,11 @@ public class PlayerControllerScript : MonoBehaviour {
 			Walk (KeyCode.RightArrow);
 		} else if (currentState == State.SHOOTING) {
 			Shoot ();
-		} else { //idle
-			StayIdle();
+		} else {
+			StayIdle ();
 		}
 	}
-
+		
 	private void StayIdle() {
 		animator.SetBool (IS_WALKING, false);
 		lastVelocity = new Vector3 (0.0f, 0.0f, 0.0f);
@@ -75,7 +84,7 @@ public class PlayerControllerScript : MonoBehaviour {
 
 	private void Shoot() {
 		animator.SetBool (IS_SHOOTING, true);
-		Invoke ("stopShooting", 0.5f);
+		Invoke ("StopShooting", 0.5f);
 		Instantiate (
 			bulletPrefab,
 			bulletSpawn
@@ -98,8 +107,14 @@ public class PlayerControllerScript : MonoBehaviour {
 		}
 	}
 
-	private void stopShooting() {
+	private void StopShooting() {
 		animator.SetBool (IS_SHOOTING, false);
 		currentState = State.IDLE;
+	}
+
+	private void StopSuffering() {
+		StopCoroutine (coroutine);
+		coroutine = null;
+		spriteRenderer.enabled = true;
 	}
 }
