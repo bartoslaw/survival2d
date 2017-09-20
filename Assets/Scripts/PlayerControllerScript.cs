@@ -9,7 +9,9 @@ public class PlayerControllerScript : MonoBehaviour {
 		WALKING_LEFT,
 		WALKING_RIGHT,
 		IDLE,
-		SHOOTING
+		SHOOTING,
+		HURT,
+		DEAD
 	}
 
 	private const string IS_WALKING = "isWalking";
