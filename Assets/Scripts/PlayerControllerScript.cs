@@ -26,6 +26,10 @@ public class PlayerControllerScript : MonoBehaviour {
 
 	private float speed = 2.3f;
 	private float hurtTime = 0.5f;
+
+	private float health = 100.0f;
+	private float hunger = 100.0f;
+
 	private Vector3 lastVelocity;
 	private IEnumerator coroutine;
 
@@ -39,6 +43,15 @@ public class PlayerControllerScript : MonoBehaviour {
 	}
 
 	void Update () {
+		if (health <= 0.0f) {
+			currentState = State.DEAD;
+			StopAllCoroutines ();
+			CancelInvoke ();
+			spriteRenderer.enabled = false;
+			//change sprite, do logic etc.
+			return;
+		}
+			
 		if (currentState == State.SHOOTING) {
 			return;
 		}
@@ -57,8 +70,10 @@ public class PlayerControllerScript : MonoBehaviour {
 		rigidBody.velocity = lastVelocity;
 	}
 
-	public void TakeHit() {
+	public void TakeHit(float forceOfAttack) {
 		if (coroutine == null) {
+			health -= forceOfAttack;
+
 			coroutine = Coroutines.WaitAndChange (spriteRenderer);
 			StartCoroutine (coroutine);
 			Invoke ("StopSuffering", hurtTime);

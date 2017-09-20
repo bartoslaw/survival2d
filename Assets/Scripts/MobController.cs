@@ -34,6 +34,7 @@ public class MobController : MonoBehaviour {
 	private SpriteRenderer spriteRenderer;
 
 	private float speed = 1.3f;
+	private float attackForce = 25.0f;
 	private Vector3 lastVelocity;
 
 	private Direction directionToPlayer;
@@ -83,7 +84,7 @@ public class MobController : MonoBehaviour {
 
 		if (!IsInvoking()) {
 			if (didHit) {
-				player.GetComponent<PlayerControllerScript> ().TakeHit ();
+				player.GetComponent<PlayerControllerScript> ().TakeHit (attackForce);
 			}
 
 			Invoke ("ToggleAttackingState", attackTime);
