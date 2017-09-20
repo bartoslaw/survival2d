@@ -22,7 +22,7 @@ public class MobController : MonoBehaviour {
 	private const float walkingTime = 0.5f;
 	private const float attackTime = 0.5f;
 	private const float coolOfTime = 0.4f;
-	private const float hurtTime = 0.2f;
+	private const float hurtTime = 0.5f;
 
 	public GameObject player;
 	public int lifeCount = 3;
@@ -70,6 +70,7 @@ public class MobController : MonoBehaviour {
 		} else if (currentState == State.IDLE_AFTER_ATTACK) {
 			StayIdleAfterAttack ();	
 		} else if (currentState == State.HURT) {
+			Suffer ();
 		}
 	}
 
@@ -129,10 +130,29 @@ public class MobController : MonoBehaviour {
 			spriteRenderer.flipX = true;
 		}
 	}
+		
+	IEnumerator coroutine;
+
+	private IEnumerator WaitAndChange(float waitTime)
+	{
+		while (true)
+		{
+			yield return new WaitForSeconds(waitTime);
+			spriteRenderer.enabled = !spriteRenderer.enabled;
+		}
+	}
 
 	void Suffer() {
 		animator.SetBool (IS_ATTACKING, false);
 		animator.SetBool (IS_WALKING, false);
+
+		if (coroutine == null) {
+			print ("Starting coroutine");
+			coroutine = WaitAndChange (0.1f);
+			StartCoroutine (coroutine);
+		}
+
+		lastVelocity = Vector3.zero;
 	}
 
 	void ToggleAttackingState() {
@@ -145,6 +165,16 @@ public class MobController : MonoBehaviour {
 	}
 
 	void ToggleIdleState() {
+		if (!spriteRenderer.enabled) {
+			spriteRenderer.enabled = true;
+		}
+
+		if (coroutine != null) { 
+			print ("Stopping coroutine");
+			StopCoroutine (coroutine);
+			coroutine = null;
+		}
+
 		if (currentState == State.IDLE) {
 			int randomValue = UnityEngine.Random.Range (0, 10);
 			currentDirection = randomValue < 5 ? Direction.LEFT : Direction.RIGHT;
@@ -166,7 +196,7 @@ public class MobController : MonoBehaviour {
 			if (currentState != State.HURT) {
 				currentState = State.HURT;
 
-				lifeCount--;
+//				lifeCount--;
 				if (lifeCount == 0) {
 					Destroy (gameObject);
 					return;
